@@ -3,14 +3,17 @@ import { prisma } from "@/lib/prisma";
 import { WorkoutRecord } from "../types/workout.types";
 
 export class WorkoutService {
-  async ingestWorkout(workout: WorkoutRecord): Promise<void> {
+  async ingestWorkout(
+    workout: WorkoutRecord,
+
+    userId?: string,
+  ): Promise<void> {
     await prisma.workout.create({
       data: {
         type: workout.type,
 
         source: workout.source,
-
-        userId: workout.userId,
+        userId,
 
         title: workout.title,
 
