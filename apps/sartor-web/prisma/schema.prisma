@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+
+  email     String   @unique
+  name      String?
+
+  createdAt DateTime @default(now())
+
+  healthData HealthData[]
+}
+
+model HealthData {
+  id String @id @default(cuid())
+
+  type String
+
+  value Float
+
+  unit String?
+
+  source String?
+
+  deviceId String?
+
+  recordedAt DateTime
+
+  createdAt DateTime @default(now())
+
+  userId String?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model HealthRecord {
+  id String @id @default(cuid())
+
+  provider String
+
+  steps Int?
+
+  calories Int?
+
+  distance Float?
+
+  heartRate Int?
+
+  sleepDuration Int?
+
+  weight Float?
+
+  bodyFat Float?
+
+  recordedAt DateTime
+
+  createdAt DateTime @default(now())
+}
+
+model HealthMetric {
+  id String @id @default(cuid())
+
+  type String
+
+  value Float
+
+  unit String?
+
+  source String?
+
+  deviceId String?
+
+  recordedAt DateTime
+
+  createdAt DateTime @default(now())
+}
