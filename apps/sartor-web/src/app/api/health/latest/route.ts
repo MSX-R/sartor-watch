@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 
-import { XiaomiWorkoutService } from "@/modules/health/providers/xiaomi/xiaomi-workout.service";
+import { HealthQueryService } from "@/modules/health/core/services/health-query.service";
 
-export async function POST() {
+export async function GET() {
   const user = await prisma.user.findFirst({
     where: {
       email: "test@sartor.app",
@@ -22,11 +22,9 @@ export async function POST() {
     );
   }
 
-  const workoutService = new XiaomiWorkoutService();
+  const healthQueryService = new HealthQueryService();
 
-  await workoutService.syncWorkout(user.id);
+  const metrics = await healthQueryService.getLatestMetrics(user.id);
 
-  return NextResponse.json({
-    success: true,
-  });
+  return NextResponse.json(metrics);
 }

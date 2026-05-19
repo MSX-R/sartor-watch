@@ -10,6 +10,8 @@ export class WorkoutService {
 
         source: workout.source,
 
+        userId: workout.userId,
+
         title: workout.title,
 
         description: workout.description,

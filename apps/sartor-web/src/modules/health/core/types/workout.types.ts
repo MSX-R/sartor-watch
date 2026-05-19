@@ -38,6 +38,8 @@ export interface WorkoutRecord {
 
   source: HealthProvider;
 
+  userId?: string;
+
   title?: string;
 
   description?: string;

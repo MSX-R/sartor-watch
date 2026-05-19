@@ -11,6 +11,8 @@ interface CreateMetricInput {
   source?: string;
 
   recordedAt: Date;
+
+  userId?: string;
 }
 
 export class HealthMetricService {
@@ -26,6 +28,8 @@ export class HealthMetricService {
         source: metric.source,
 
         recordedAt: metric.recordedAt,
+
+        userId: metric.userId,
       })),
     });
   }

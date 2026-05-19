@@ -3,16 +3,21 @@ import { HealthMetricService } from "../../core/services/health-metric.service";
 
 import { XiaomiClient } from "./xiaomi.client";
 import { XiaomiMapper } from "./xiaomi.mapper";
+import { ProviderService } from "../../core/services/provider.service";
 
 export class XiaomiService {
   private client = new XiaomiClient();
 
   private healthMetricService = new HealthMetricService();
 
-  async syncActivity(): Promise<void> {
+  private providerService = new ProviderService();
+
+  async syncActivity(userId: string): Promise<void> {
     const rawData = await this.client.getActivityData();
 
     const normalizedData = XiaomiMapper.toHealthRecord(rawData);
+
+    await this.providerService.connectProvider(userId, normalizedData.provider);
 
     await this.healthMetricService.createMetrics([
       {
@@ -23,6 +28,8 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+
+        userId,
       },
 
       {
@@ -33,6 +40,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -43,6 +51,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -53,6 +62,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -63,6 +73,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -73,6 +84,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
       {
         type: HealthMetricType.ACTIVE_CALORIES,
@@ -82,6 +94,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -92,6 +105,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -102,6 +116,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -112,6 +127,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -122,6 +138,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -132,6 +149,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -142,6 +160,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -152,6 +171,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
 
       {
@@ -162,6 +182,7 @@ export class XiaomiService {
         source: normalizedData.provider,
 
         recordedAt: normalizedData.recordedAt,
+        userId,
       },
     ]);
   }

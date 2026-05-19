@@ -2,6 +2,7 @@ import { HealthProvider } from "../enums/health-provider.enum";
 
 export interface HealthRecord {
   provider: HealthProvider;
+
   steps?: number;
 
   calories?: number;
@@ -49,4 +50,6 @@ export interface HealthMetricInput {
   deviceId?: string;
 
   recordedAt: Date;
+
+  userId?: string;
 }
