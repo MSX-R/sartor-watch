@@ -2,19 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 
-import { XiaomiProvider } from "@/modules/health/providers/xiaomi";
+import { XiaomiProvider } from "@/modules/health/providers/xiaomi/xiaomi.provider";
 
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-
-  const code = searchParams.get("code");
+  const code = request.nextUrl.searchParams.get("code");
 
   if (!code) {
     return NextResponse.json(
       {
         success: false,
 
-        error: "Missing code",
+        error: "Missing authorization code",
       },
       {
         status: 400,
@@ -22,11 +20,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const user = await prisma.user.findFirst({
-    where: {
-      email: "test@sartor.app",
-    },
-  });
+  const provider = new XiaomiProvider();
+
+  const connection = await provider.exchangeCodeForToken(code);
+
+  const user = await prisma.user.findFirst();
 
   if (!user) {
     return NextResponse.json(
@@ -38,10 +36,6 @@ export async function GET(request: NextRequest) {
       },
     );
   }
-
-  const provider = new XiaomiProvider();
-
-  const connection = await provider.exchangeCodeForToken(code);
 
   await prisma.connectedProvider.upsert({
     where: {
@@ -79,5 +73,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     success: true,
+
+    connection,
   });
 }

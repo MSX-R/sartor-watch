@@ -10,7 +10,13 @@ import { WorkoutRecord } from "../../core/types/workout.types";
 
 export class XiaomiProvider implements HealthProviderContract {
   async connect(): Promise<string> {
-    return "https://account.xiaomi.com";
+    const clientId = process.env.XIAOMI_CLIENT_ID;
+
+    const redirectUri = process.env.XIAOMI_REDIRECT_URI;
+
+    return `
+      https://account.xiaomi.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}
+      `.trim();
   }
 
   async exchangeCodeForToken(code: string): Promise<ProviderConnection> {

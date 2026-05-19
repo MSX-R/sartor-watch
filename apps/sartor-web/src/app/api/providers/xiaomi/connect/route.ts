@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { XiaomiProvider } from "@/modules/health/providers/xiaomi";
+import { XiaomiProvider } from "@/modules/health/providers/xiaomi/xiaomi.provider";
 
 export async function GET() {
   const provider = new XiaomiProvider();
@@ -8,8 +8,6 @@ export async function GET() {
   const url = await provider.connect();
 
   return NextResponse.json({
-    success: true,
-
     url,
   });
 }
