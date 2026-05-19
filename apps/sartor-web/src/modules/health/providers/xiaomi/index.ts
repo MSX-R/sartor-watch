@@ -13,3 +13,5 @@ export * from "./xiaomi-workout.mapper";
 export * from "./xiaomi-workout.service";
 
 export * from "./xiaomi-workout.types";
+
+export * from "./xiaomi.provider";
