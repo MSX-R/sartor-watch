@@ -1,0 +1,32 @@
+-- CreateTable
+CREATE TABLE "Workout" (
+    "id" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "title" TEXT,
+    "description" TEXT,
+    "deviceId" TEXT,
+    "startedAt" TIMESTAMP(3) NOT NULL,
+    "endedAt" TIMESTAMP(3) NOT NULL,
+    "duration" INTEGER NOT NULL,
+    "calories" DOUBLE PRECISION,
+    "activeCalories" DOUBLE PRECISION,
+    "distance" DOUBLE PRECISION,
+    "steps" INTEGER,
+    "elevation" DOUBLE PRECISION,
+    "averageSpeed" DOUBLE PRECISION,
+    "maxSpeed" DOUBLE PRECISION,
+    "averagePace" DOUBLE PRECISION,
+    "averageHeartRate" DOUBLE PRECISION,
+    "maxHeartRate" DOUBLE PRECISION,
+    "cadence" DOUBLE PRECISION,
+    "power" DOUBLE PRECISION,
+    "vo2Max" DOUBLE PRECISION,
+    "trainingLoad" DOUBLE PRECISION,
+    "recoveryTime" DOUBLE PRECISION,
+    "perceivedEffort" DOUBLE PRECISION,
+    "notes" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Workout_pkey" PRIMARY KEY ("id")
+);

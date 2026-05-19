@@ -1,6 +1,7 @@
-export interface HealthRecord {
-  provider: string;
+import { HealthProvider } from "../enums/health-provider.enum";
 
+export interface HealthRecord {
+  provider: HealthProvider;
   steps?: number;
 
   calories?: number;
@@ -16,6 +17,24 @@ export interface HealthRecord {
   bodyFat?: number;
 
   recordedAt: Date;
+
+  activeCalories?: number;
+
+  restingHeartRate?: number;
+
+  vo2Max?: number;
+
+  water?: number;
+
+  protein?: number;
+
+  carbs?: number;
+
+  fat?: number;
+
+  bmi?: number;
+
+  muscleMass?: number;
 }
 
 export interface HealthMetricInput {
