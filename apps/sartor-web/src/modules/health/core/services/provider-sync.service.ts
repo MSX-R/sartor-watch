@@ -8,7 +8,7 @@ import { HealthMetricService } from "./health-metric.service";
 
 import { WorkoutService } from "./workout.service";
 
-import { XiaomiProvider } from "../../providers/xiaomi/xiaomi.provider";
+import { ProviderFactory } from "../factories/provider.factory";
 
 export class ProviderSyncService {
   private healthMetricService = new HealthMetricService();
@@ -30,7 +30,7 @@ export class ProviderSyncService {
 
     switch (provider) {
       case HealthProvider.XIAOMI:
-        await this.syncXiaomi(userId);
+        await this.syncXiaomi(userId, connectedProvider);
 
         break;
 
@@ -39,10 +39,28 @@ export class ProviderSyncService {
     }
   }
 
-  private async syncXiaomi(userId: string): Promise<void> {
-    const provider = new XiaomiProvider();
+  private async syncXiaomi(
+    userId: string,
 
-    const activity = await provider.getActivityData();
+    connectedProvider: {
+      accessToken: string | null;
+
+      refreshToken: string | null;
+
+      expiresAt: Date | null;
+    },
+  ): Promise<void> {
+    const provider = ProviderFactory.create(HealthProvider.XIAOMI);
+
+    const connection = {
+      accessToken: connectedProvider.accessToken ?? "",
+
+      refreshToken: connectedProvider.refreshToken ?? "",
+
+      expiresAt: connectedProvider.expiresAt ?? new Date(),
+    };
+
+    const activity = await provider.getActivityData(connection);
 
     await this.healthMetricService.createMetrics([
       {
@@ -82,7 +100,7 @@ export class ProviderSyncService {
       },
     ]);
 
-    const workouts = await provider.getWorkouts();
+    const workouts = await provider.getWorkouts(connection);
 
     for (const workout of workouts) {
       await this.workoutService.ingestWorkout(workout, userId);
