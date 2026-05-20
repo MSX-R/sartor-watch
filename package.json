@@ -2,12 +2,14 @@
   "name": "sartor-watch",
   "private": true,
   "workspaces": [
-    "apps/*",
+    "apps/sartor-web",
     "packages/*",
     "services/*"
   ],
   "scripts": {
     "dev": "turbo run dev",
+    "dev:web": "npm run dev --workspace=sartor-web",
+    "dev:mobile": "npm run dev --prefix apps/sartor-mobile",
     "build": "turbo run build"
   },
   "devDependencies": {
