@@ -12,4 +12,10 @@ export enum HealthProvider {
   GOOGLE_FIT = "google_fit",
 
   HEALTH_CONNECT = "health_connect",
+
+  SUUNTO = "suunto",
+
+  MYFITNESSPAL = "myfitnesspal",
+
+  YAZIO = "yazio",
 }

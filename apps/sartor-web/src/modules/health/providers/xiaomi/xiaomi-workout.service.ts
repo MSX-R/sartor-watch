@@ -22,11 +22,7 @@ export class XiaomiWorkoutService {
         normalizedWorkout.source,
       );
       
-      await this.workoutService.ingestWorkout({
-        ...normalizedWorkout,
-      
-        userId,
-      });
+      await this.workoutService.ingestWorkout(normalizedWorkout, userId);
     }
   }
 }

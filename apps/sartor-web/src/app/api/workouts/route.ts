@@ -1,32 +1,21 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-import { prisma } from "@/lib/prisma";
+import { requireUserId } from "@/lib/auth/request-auth";
+import { HealthProvider } from "@/modules/health/core/enums/health-provider.enum";
+import { ProviderSyncService } from "@/modules/health/core/services/provider-sync.service";
 
-import { XiaomiWorkoutService } from "@/modules/health/providers/xiaomi/xiaomi-workout.service";
+/** Sync workouts via provider pipeline (Xiaomi pour l'instant). */
+export async function POST(request: NextRequest) {
+  const userIdOrResponse = await requireUserId(request);
 
-export async function POST() {
-  const user = await prisma.user.findFirst({
-    where: {
-      email: "test@sartor.app",
-    },
-  });
-
-  if (!user) {
-    return NextResponse.json(
-      {
-        success: false,
-      },
-      {
-        status: 404,
-      },
-    );
+  if (userIdOrResponse instanceof NextResponse) {
+    return userIdOrResponse;
   }
 
-  const workoutService = new XiaomiWorkoutService();
+  const result = await new ProviderSyncService().syncProvider(
+    userIdOrResponse,
+    HealthProvider.XIAOMI,
+  );
 
-  await workoutService.syncWorkout(user.id);
-
-  return NextResponse.json({
-    success: true,
-  });
+  return NextResponse.json({ success: true, ...result });
 }
