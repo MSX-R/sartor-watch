@@ -1,13 +1,9 @@
 import { prisma } from "@/lib/prisma";
 
 import { HealthProvider } from "../enums/health-provider.enum";
-
-import { HealthMetricType } from "../enums/health-metric-type.enum";
-
 import { HealthMetricService } from "./health-metric.service";
-
+import { HealthRecordNormalizer } from "./health-record-normalizer.service";
 import { WorkoutService } from "./workout.service";
-
 import { ProviderFactory } from "../factories/provider.factory";
 
 export class ProviderSyncService {
@@ -15,11 +11,10 @@ export class ProviderSyncService {
 
   private workoutService = new WorkoutService();
 
-  async syncProvider(userId: string, provider: HealthProvider): Promise<void> {
+  async syncProvider(userId: string, provider: HealthProvider): Promise<{ metricsUpserted: number }> {
     const connectedProvider = await prisma.connectedProvider.findFirst({
       where: {
         userId,
-
         provider,
       },
     });
@@ -30,9 +25,7 @@ export class ProviderSyncService {
 
     switch (provider) {
       case HealthProvider.XIAOMI:
-        await this.syncXiaomi(userId, connectedProvider);
-
-        break;
+        return this.syncXiaomi(userId, connectedProvider);
 
       default:
         throw new Error("Provider not supported");
@@ -41,64 +34,23 @@ export class ProviderSyncService {
 
   private async syncXiaomi(
     userId: string,
-
     connectedProvider: {
       accessToken: string | null;
-
       refreshToken: string | null;
-
       expiresAt: Date | null;
     },
-  ): Promise<void> {
+  ): Promise<{ metricsUpserted: number }> {
     const provider = ProviderFactory.create(HealthProvider.XIAOMI);
 
     const connection = {
       accessToken: connectedProvider.accessToken ?? "",
-
       refreshToken: connectedProvider.refreshToken ?? "",
-
       expiresAt: connectedProvider.expiresAt ?? new Date(),
     };
 
     const activity = await provider.getActivityData(connection);
-
-    await this.healthMetricService.createMetrics([
-      {
-        type: HealthMetricType.STEPS,
-
-        value: activity.steps ?? 0,
-
-        source: activity.provider,
-
-        recordedAt: activity.recordedAt,
-
-        userId,
-      },
-
-      {
-        type: HealthMetricType.CALORIES,
-
-        value: activity.calories ?? 0,
-
-        source: activity.provider,
-
-        recordedAt: activity.recordedAt,
-
-        userId,
-      },
-
-      {
-        type: HealthMetricType.HEART_RATE,
-
-        value: activity.heartRate ?? 0,
-
-        source: activity.provider,
-
-        recordedAt: activity.recordedAt,
-
-        userId,
-      },
-    ]);
+    const metrics = HealthRecordNormalizer.toMetrics(activity, userId);
+    const metricsUpserted = await this.healthMetricService.upsertMetrics(metrics);
 
     const workouts = await provider.getWorkouts(connection);
 
@@ -110,14 +62,14 @@ export class ProviderSyncService {
       where: {
         userId_provider: {
           userId,
-
           provider: HealthProvider.XIAOMI,
         },
       },
-
       data: {
         lastSyncAt: new Date(),
       },
     });
+
+    return { metricsUpserted };
   }
 }

@@ -1,47 +1,48 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-import { prisma } from "@/lib/prisma";
 import { comparePassword } from "@/lib/auth/hash";
 import { generateToken } from "@/lib/auth/jwt";
+import { prisma } from "@/lib/prisma";
+import { loginSchema } from "@/modules/health/core/schemas/health-metric.schema";
 
-export async function POST() {
-  const user = await prisma.user.findFirst({
-    where: {
-      email: "test@sartor.app",
-    },
-  });
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const parsed = loginSchema.safeParse(body);
 
-  if (!user?.password) {
+  if (!parsed.success) {
     return NextResponse.json(
-      {
-        success: false,
-      },
-      {
-        status: 401,
-      },
+      { success: false, error: parsed.error.flatten() },
+      { status: 400 },
     );
   }
 
-  const isValidPassword = await comparePassword("admin123", user.password);
+  const user = await prisma.user.findUnique({
+    where: { email: parsed.data.email },
+  });
+
+  if (!user?.password) {
+    return NextResponse.json({ success: false }, { status: 401 });
+  }
+
+  const isValidPassword = await comparePassword(
+    parsed.data.password,
+    user.password,
+  );
 
   if (!isValidPassword) {
-    return NextResponse.json(
-      {
-        success: false,
-      },
-      {
-        status: 401,
-      },
-    );
+    return NextResponse.json({ success: false }, { status: 401 });
   }
 
   const token = await generateToken(user.id);
 
   return NextResponse.json({
     success: true,
-
     token,
-
-    user,
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    },
   });
 }

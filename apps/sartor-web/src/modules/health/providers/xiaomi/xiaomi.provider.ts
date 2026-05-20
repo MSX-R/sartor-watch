@@ -31,7 +31,7 @@ export class XiaomiProvider implements HealthProviderContract {
     };
   }
 
-  async getActivityData(): Promise<HealthRecord> {
+  async getActivityData(_connection: ProviderConnection): Promise<HealthRecord> {
     return {
       provider: HealthProvider.XIAOMI,
 

@@ -1,15 +1,17 @@
-import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
-import { NextResponse } from "next/server";
+import { requireUserId } from "@/lib/auth/request-auth";
+import { HealthQueryService } from "@/modules/health/core/services/health-query.service";
 
-export async function GET() {
-  const metrics = await prisma.healthMetric.findMany({
-    orderBy: {
-      recordedAt: "desc",
-    },
+export async function GET(request: NextRequest) {
+  const userIdOrResponse = await requireUserId(request);
 
-    take: 20,
-  });
+  if (userIdOrResponse instanceof NextResponse) {
+    return userIdOrResponse;
+  }
+
+  const healthQueryService = new HealthQueryService();
+  const metrics = await healthQueryService.getLatestMetrics(userIdOrResponse);
 
   return NextResponse.json(metrics);
 }

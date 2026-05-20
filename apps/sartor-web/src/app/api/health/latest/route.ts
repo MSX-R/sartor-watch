@@ -1,30 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-import { prisma } from "@/lib/prisma";
-
+import { requireUserId } from "@/lib/auth/request-auth";
 import { HealthQueryService } from "@/modules/health/core/services/health-query.service";
 
-export async function GET() {
-  const user = await prisma.user.findFirst({
-    where: {
-      email: "test@sartor.app",
-    },
-  });
+export async function GET(request: NextRequest) {
+  const userIdOrResponse = await requireUserId(request);
 
-  if (!user) {
-    return NextResponse.json(
-      {
-        success: false,
-      },
-      {
-        status: 404,
-      },
-    );
+  if (userIdOrResponse instanceof NextResponse) {
+    return userIdOrResponse;
   }
 
   const healthQueryService = new HealthQueryService();
-
-  const metrics = await healthQueryService.getLatestMetrics(user.id);
+  const metrics = await healthQueryService.getLatestMetrics(userIdOrResponse);
 
   return NextResponse.json(metrics);
 }

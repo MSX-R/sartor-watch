@@ -89,7 +89,7 @@ model HealthMetric {
 
   unit String?
 
-  source String?
+  source String
 
   deviceId String?
 
@@ -97,9 +97,12 @@ model HealthMetric {
 
   createdAt DateTime @default(now())
 
-  userId String?
+  userId String
 
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type, source, recordedAt], name: "health_metric_dedup")
+  @@index([userId, recordedAt])
 }
 
 model Workout {

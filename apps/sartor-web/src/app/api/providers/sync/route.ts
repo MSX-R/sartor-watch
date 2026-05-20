@@ -1,34 +1,32 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-import { prisma } from "@/lib/prisma";
-
+import { requireUserId } from "@/lib/auth/request-auth";
 import { HealthProvider } from "@/modules/health/core/enums/health-provider.enum";
-
+import { syncProviderSchema } from "@/modules/health/core/schemas/health-metric.schema";
 import { ProviderSyncService } from "@/modules/health/core/services/provider-sync.service";
 
-export async function POST() {
-  const user = await prisma.user.findFirst({
-    where: {
-      email: "test@sartor.app",
-    },
-  });
+export async function POST(request: NextRequest) {
+  const userIdOrResponse = await requireUserId(request);
 
-  if (!user) {
+  if (userIdOrResponse instanceof NextResponse) {
+    return userIdOrResponse;
+  }
+
+  const body = await request.json().catch(() => ({ provider: HealthProvider.XIAOMI }));
+  const parsed = syncProviderSchema.safeParse(body);
+
+  if (!parsed.success) {
     return NextResponse.json(
-      {
-        success: false,
-      },
-      {
-        status: 404,
-      },
+      { success: false, error: parsed.error.flatten() },
+      { status: 400 },
     );
   }
 
   const syncService = new ProviderSyncService();
-
-  await syncService.syncProvider(user.id, HealthProvider.XIAOMI);
+  const result = await syncService.syncProvider(userIdOrResponse, parsed.data.provider);
 
   return NextResponse.json({
     success: true,
+    ...result,
   });
 }

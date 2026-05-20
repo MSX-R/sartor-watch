@@ -1,15 +1,35 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
+import { requireUserId } from "@/lib/auth/request-auth";
+import { HealthProvider } from "@/modules/health/core/enums/health-provider.enum";
+import { syncProviderSchema } from "@/modules/health/core/schemas/health-metric.schema";
 import { ProviderSyncService } from "@/modules/health/core/services/provider-sync.service";
 
-import { HealthProvider } from "@/modules/health/core/enums/health-provider.enum";
+export async function POST(request: NextRequest) {
+  const userIdOrResponse = await requireUserId(request);
 
-export async function POST() {
+  if (userIdOrResponse instanceof NextResponse) {
+    return userIdOrResponse;
+  }
+
+  const body = await request.json().catch(() => ({}));
+  const parsed = syncProviderSchema.safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { success: false, error: parsed.error.flatten() },
+      { status: 400 },
+    );
+  }
+
   const providerSyncService = new ProviderSyncService();
-
-  await providerSyncService.syncProvider("cmpcxyiz70001v18crclg3gns", HealthProvider.XIAOMI);
+  const result = await providerSyncService.syncProvider(
+    userIdOrResponse,
+    parsed.data.provider,
+  );
 
   return NextResponse.json({
     success: true,
+    ...result,
   });
 }
