@@ -1,22 +1,36 @@
 import { api } from "../lib/api";
 import { useAuthStore } from "../store/auth.store";
 
-const DEV_EMAIL = "test@sartor.app";
-const DEV_PASSWORD = "admin123";
+export async function login(email: string, password: string): Promise<void> {
+  const { data } = await api.post("/auth/login", { email, password });
 
-export async function ensureAuthenticated(): Promise<void> {
-  const { token, setToken } = useAuthStore.getState();
-
-  if (token) {
-    return;
+  if (!data?.token) {
+    throw new Error("Connexion impossible");
   }
 
-  const response = await api.post("/auth/login", {
-    email: DEV_EMAIL,
-    password: DEV_PASSWORD,
-  });
+  useAuthStore.getState().setSession(data.token, email);
+}
 
-  if (response.data?.token) {
-    setToken(response.data.token);
+export async function register(
+  email: string,
+  password: string,
+  name?: string,
+): Promise<void> {
+  const { data } = await api.post("/auth/register", { email, password, name });
+
+  if (!data?.token) {
+    throw new Error("Inscription impossible");
   }
+
+  useAuthStore.getState().setSession(data.token, email);
+}
+
+export function requireAuth(): void {
+  if (!useAuthStore.getState().token) {
+    throw new Error("Non authentifié");
+  }
+}
+
+export async function logout(): Promise<void> {
+  useAuthStore.getState().logout();
 }

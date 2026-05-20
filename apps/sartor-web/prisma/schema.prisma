@@ -34,6 +34,7 @@ model User {
   providers     ConnectedProvider[]
 }
 
+/// @deprecated Utiliser HealthMetric — conservé pour migrations historiques
 model HealthData {
   id String @id @default(cuid())
 
@@ -56,6 +57,7 @@ model HealthData {
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+/// @deprecated Table legacy — les providers mappent vers HealthMetric
 model HealthRecord {
   id String @id @default(cuid())
 

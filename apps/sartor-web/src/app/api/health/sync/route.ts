@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireUserId } from "@/lib/auth/request-auth";
 import { HealthProvider } from "@/modules/health/core/enums/health-provider.enum";
 import { syncProviderSchema } from "@/modules/health/core/schemas/health-metric.schema";
+import { ProviderConnectionService } from "@/modules/health/core/services/provider-connection.service";
 import { ProviderSyncService } from "@/modules/health/core/services/provider-sync.service";
 
 export async function POST(request: NextRequest) {
@@ -22,8 +23,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const providerSyncService = new ProviderSyncService();
-  const result = await providerSyncService.syncProvider(
+  await new ProviderConnectionService().ensureConnected(
+    userIdOrResponse,
+    parsed.data.provider,
+  );
+
+  const result = await new ProviderSyncService().syncProvider(
     userIdOrResponse,
     parsed.data.provider,
   );

@@ -3,6 +3,26 @@ import { prisma } from "@/lib/prisma";
 import { WorkoutRecord } from "../types/workout.types";
 
 export class WorkoutService {
+  async listForUser(userId: string, limit = 30) {
+    return prisma.workout.findMany({
+      where: { userId },
+      orderBy: { startedAt: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        type: true,
+        source: true,
+        title: true,
+        startedAt: true,
+        endedAt: true,
+        duration: true,
+        calories: true,
+        distance: true,
+        averageHeartRate: true,
+      },
+    });
+  }
+
   async ingestWorkout(workout: WorkoutRecord, userId: string): Promise<void> {
     const existing = await prisma.workout.findFirst({
       where: {
