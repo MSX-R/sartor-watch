@@ -4,11 +4,12 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
+    "postinstall": "patch-package",
     "dev": "expo start --dev-client",
     "start": "expo start --dev-client",
     "android": "expo run:android",
     "prebuild:android": "expo prebuild --platform android --clean",
-    "ios": "expo start --ios",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@types/react": "~19.1.0",
     "expo-build-properties": "^55.0.14",
+    "patch-package": "^8.0.0",
     "typescript": "~5.9.2"
   }
 }

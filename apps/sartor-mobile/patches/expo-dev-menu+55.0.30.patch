@@ -1,0 +1,20 @@
+diff --git a/node_modules/expo-dev-menu/android/src/debug/java/expo/modules/devmenu/DevMenuPackage.kt b/node_modules/expo-dev-menu/android/src/debug/java/expo/modules/devmenu/DevMenuPackage.kt
+index 281efd8..97d5195 100644
+--- a/node_modules/expo-dev-menu/android/src/debug/java/expo/modules/devmenu/DevMenuPackage.kt
++++ b/node_modules/expo-dev-menu/android/src/debug/java/expo/modules/devmenu/DevMenuPackage.kt
+@@ -47,9 +47,13 @@ class DevMenuPackage : Package {
+ 
+         private var reactHostHolder: WeakReference<ReactHost> = WeakReference(null)
+ 
+-        override fun onDidCreateReactActivityDelegateNotification(activity: ReactActivity?, delegate: ReactActivityDelegate?) {
++        override fun onDidCreateReactActivityDelegate(
++          activity: ReactActivity,
++          delegate: ReactActivityDelegate
++        ): ReactActivityDelegate? {
+           currentActivityHolder = activity.weak()
+-          reactHostHolder = delegate?.reactHost.weak()
++          reactHostHolder = delegate.reactHost.weak()
++          return null
+         }
+ 
+         override fun createReactRootViewContainer(activity: Activity): ViewGroup {
